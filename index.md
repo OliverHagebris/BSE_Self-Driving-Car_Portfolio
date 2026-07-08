@@ -1,7 +1,8 @@
 # Self-Driving Car
-My project is a self-driving car. When it is powered on, it begins its trek, slowly moving forward until it reaches an obstacle, either veering off or reversing to avoid a collision. One of the biggest challenges I had was the wiring. This project had a decently compact wiring setup, which had some columns full of wires.
+My project is a self-driving car. When it is powered on, it begins its trek, slowly moving forward until it reaches an obstacle, either veering off or reversing to avoid a collision. 
 
 <!--Replace this text with a brief description (2-3 sentences) of your project. This description should draw the reader in and make them interested in what you've built. You can include what the biggest challenges, takeaways, and triumphs from completing the project were. As you complete your portfolio, remember your audience is less familiar than you are with all that your project entails!-->
+<!--The biggest challenge I had was the wiring; this project had a decently compact wiring setup, which had some columns full of wires.-->
 
 You should comment out all portions of your portfolio that you have not completed yet, as well as any instructions:
 ```HTML 
@@ -15,7 +16,7 @@ You should comment out all portions of your portfolio that you have not complete
 
 **Replace the BlueStamp logo below with an image of yourself and your completed project. Follow the guide [here](https://tomcam.github.io/least-github-pages/adding-images-github-pages-site.html) if you need help.**
 
-![Headstone Image](logo.sgv)
+![Headstone Image]()
   
 # Final Milestone
 
@@ -60,20 +61,193 @@ For my first milestone my project is in it's base form; it has 1 9V battery to p
 Here's where you'll put images of your schematics. [Tinkercad](https://www.tinkercad.com/blog/official-guide-to-tinkercad-circuits) and [Fritzing](https://fritzing.org/learning/) are both great resoruces to create professional schematic diagrams, though BSE recommends Tinkercad becuase it can be done easily and for free in the browser. 
 
 # Code
-Here's where you'll put your code. The syntax below places it into a block of code. Follow the guide [here]([url](https://www.markdownguide.org/extended-syntax/)) to learn how to customize it to your project needs. 
-
 ```c++
+#include <EEPROM.h>
+#include <IRremote.h>
+
+const float leftOffset = 0.91; //the offsets of the motors
+const float rightOffset = 1.0;
+
+const int A_1B = 5; //the pinholes for each motor and the function
+const int A_1A = 6;
+const int B_1B = 9;
+const int B_1A = 10;
+
+const int echoPin = 4;  //the pinholes for the ultrasound sensor
+const int trigPin = 3;
+
+const int rightIR = 7;  //the pinholes for the ir obstacle sensor
+const int leftIR = 8;
+
+const int IR_RECEIVE_PIN = 12;  //the pinhole for the irremote receiver
+
+bool isOn = false;  //the var that turns on/off the system
+
+float readSensorData() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  float distance = pulseIn(echoPin, HIGH) / 58.00; //Equivalent to (340m/s*1us)/2
+  return distance;
+}
+
+
+void moveForward(int speed) {
+  analogWrite(A_1B, 0);
+  analogWrite(A_1A, speed*rightOffset);
+  analogWrite(B_1B, speed*leftOffset);
+  analogWrite(B_1A, 0);
+}
+
+void moveBackward(int speed) {
+  analogWrite(A_1B, speed*rightOffset);
+  analogWrite(A_1A, 0);
+  analogWrite(B_1B, 0);
+  analogWrite(B_1A, speed*leftOffset);
+}
+
+
+void backLeft(int speed) {
+  analogWrite(A_1B, speed*rightOffset);
+  analogWrite(A_1A, 0);
+  analogWrite(B_1B, 0);
+  analogWrite(B_1A, 0);
+}
+
+void backRight(int speed) {
+  analogWrite(A_1B, 0);
+  analogWrite(A_1A, 0);
+  analogWrite(B_1B, 0);
+  analogWrite(B_1A, speed*leftOffset);
+}
+
+void stopMove() {
+  analogWrite(A_1B, 0);
+  analogWrite(A_1A, 0);
+  analogWrite(B_1B, 0);
+  analogWrite(B_1A, 0);
+}
+
+String decodeKeyValue(long result)  //translates the received signal from the IR remote sensor into its respective button (only the power button is used atm)
+{
+  switch(result){
+    case 0x16:
+      return "0";
+    case 0xC:
+      return "1"; 
+    case 0x18:
+      return "2"; 
+    case 0x5E:
+      return "3"; 
+    case 0x8:
+      return "4"; 
+    case 0x1C:
+      return "5"; 
+    case 0x5A:
+      return "6"; 
+    case 0x42:
+      return "7"; 
+    case 0x52:
+      return "8"; 
+    case 0x4A:
+      return "9"; 
+    case 0x9:
+      return "+"; 
+    case 0x15:
+      return "-"; 
+    case 0x7:
+      return "EQ"; 
+    case 0xD:
+      return "U/SD";
+    case 0x19:
+      return "CYCLE";         
+    case 0x44:
+      return "PLAY/PAUSE";   
+    case 0x43:
+      return "FORWARD";   
+    case 0x40:
+      return "BACKWARD";   
+    case 0x45:
+      return "POWER";   
+    case 0x47:
+      return "MUTE";   
+    case 0x46:
+      return "MODE";       
+    case 0x0:
+      return "ERROR";   
+    default :
+      return "ERROR";
+    }
+}
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(9600);
-  Serial.println("Hello World!");
+
+  //motor
+  pinMode(A_1B, OUTPUT);
+  pinMode(A_1A, OUTPUT);
+  pinMode(B_1B, OUTPUT);
+  pinMode(B_1A, OUTPUT);
+
+  //ultrasonic sensor
+  pinMode(echoPin, INPUT);
+  pinMode(trigPin, OUTPUT);
+
+  //IR obstacle sensor
+  pinMode(leftIR, INPUT);
+  pinMode(rightIR, INPUT);
+  //IRRemote receiver
+  IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
+
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
 
+  int left = digitalRead(leftIR);  // 0: Obstructed   1: Empty
+  int right = digitalRead(rightIR);
+  float distance = readSensorData();
+  if (isOn) {
+
+    if (!left && right) {
+      backLeft(150);
+    } else if (left && !right) {
+      backRight(150);
+    } else if (!left && !right) {
+      moveBackward(150);
+    } else {
+      float distance = readSensorData();
+      Serial.println(distance);
+      if (distance > 50) { // Safe
+        moveForward(200); //200 is the max rpm that the motor can run at
+      } else if (distance < 10) { // Attention
+        moveBackward(200);
+       delay(1000);
+       backLeft(150);
+       delay(500);
+     } else {
+       moveForward(150);
+      }
+   }
+  } else {
+    stopMove();
+  }
+  if (IrReceiver.decode()) {
+    //    Serial.println(results.value,HEX);
+    String key = decodeKeyValue(IrReceiver.decodedIRData.command);
+    if (key != "ERROR") {
+      Serial.println(key);
+
+      if (key == "POWER") {
+        isOn = !isOn;
+        delay(100);
+      }
+    }
+    IrReceiver.resume();
+  }
 }
 ```
+
 
 # Bill of Materials
 Here's where you'll list the parts in your project. To add more rows, just copy and paste the example rows below.
@@ -81,7 +255,7 @@ Don't forget to place the link of where to buy each component inside the quotati
 
 | **Part** | **Note** | **Price** | **Link** |
 |:--:|:--:|:--:|:--:|
-| Item Name | What the item is used for | $Price | <a href="https://www.amazon.com/Arduino-A000066-ARDUINO-UNO-R3/dp/B008GRTSV6/"> Link </a> |
+| 3 in 1 kit | The base project + IRremote modification | $69.99 | <a href="https://www.sunfounder.com/products/sunfounder-3-in-1-iot-smart-car-learning-ultimate-starter-kit"> Link </a> |
 | Item Name | What the item is used for | $Price | <a href="https://www.amazon.com/Arduino-A000066-ARDUINO-UNO-R3/dp/B008GRTSV6/"> Link </a> |
 | Item Name | What the item is used for | $Price | <a href="https://www.amazon.com/Arduino-A000066-ARDUINO-UNO-R3/dp/B008GRTSV6/"> Link </a> |
 
