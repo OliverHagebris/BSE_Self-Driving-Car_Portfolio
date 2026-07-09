@@ -1,5 +1,5 @@
 # Self-Driving Car
-My project is a self-driving car. When it is powered on, it begins its trek, slowly moving forward until it reaches an obstacle, either veering off or reversing to avoid a collision. It runs on an Arduino R3 Uno board, using C++ code, and the entire project uses a 9V battery for power.
+My project is a self-driving car. When it is powered on, it begins its trek, slowly moving forward until it reaches an obstacle, either veering off or reversing to avoid a collision. The base project runs on an Arduino R3 Uno board, which runs on C++ and uses a 9V battery as its power source. I have modified the project to include both an IR remote to turn on/off it from a distance, and a solar panel so that it runs on solar power rather than batteries.
 
 <!--Replace this text with a brief description (2-3 sentences) of your project. This description should draw the reader in and make them interested in what you've built. You can include what the biggest challenges, takeaways, and triumphs from completing the project were. As you complete your portfolio, remember your audience is less familiar than you are with all that your project entails!-->
 <!--The biggest challenge I had was the wiring; this project had a decently compact wiring setup, which had some columns full of wires.-->
@@ -251,7 +251,7 @@ Don't forget to place the link of where to buy each component inside the quotati
 |:--:|:--:|:--:|:--:|
 | 3 in 1 kit | The base project & IRremote modification. | $69.99 | <a href="https://www.sunfounder.com/products/sunfounder-3-in-1-iot-smart-car-learning-ultimate-starter-kit"> Link </a> |
 | Screw terminal DC barrel adapter | Converting the wires from the solar panel into the DC barrel jack, which is necessary for the Arduino. | $3.97 | <a href="https://www.amazon.com/dp/B0CR8TZ41W"> Link </a> |
-| 5W 12V Solar Panel | Used to power the car | $13.99 | <a href="https://www.amazon.com/Efficiency-Chargerfor-Monocrystalline-Photovoltaic-Batteries/dp/B0F8Q3FTLT"> Link </a> |
+| 5W 12V Solar Panel | Used to power the car. | $13.99 | <a href="https://www.amazon.com/Efficiency-Chargerfor-Monocrystalline-Photovoltaic-Batteries/dp/B0F8Q3FTLT"> Link </a> |
 | M3x50mm Standoff x8 | Used to elevate the solar panel above the robot. | $9.86 | <a href="https://www.mouser.com/ProductDetail/Davies-Molding/SH1000-K?qs=vLWxofP3U2ymAINUbdVfLQ%3D%3D"> Link </a> |
 | M3 Nuts x2 | Used to attach the standoffs to the base project. | $0.36 | <a href="https://www.mouser.com/ProductDetail/Essentra/04M030050HNDIN34814?qs=T3oQrply3y%252BoX1ymaXFOZA%3D%3D"> Link </a> |
 | J-B Weld | Used to weld together the solar panel and the standoffs. | $13.61 | <a href="https://www.amazon.com/J-B-Weld-KwikWeld-Waterproof-50176-2/dp/B009EU5ZMA"> Link </a> |
