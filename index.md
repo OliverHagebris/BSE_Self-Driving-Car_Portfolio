@@ -71,10 +71,10 @@ const int B_1A = 10;
 const int echoPin = 4;  //the pinholes for the ultrasound sensor
 const int trigPin = 3;
 
-const int rightIR = 7;  //the pinholes for the ir obstacle sensor
+const int rightIR = 7;  //the pinholes for the ir sensor
 const int leftIR = 8;
 
-const int IR_RECEIVE_PIN = 12;  //the pinhole for the irremote receiver
+const int IR_RECEIVE_PIN = 12;  //the pinhole for the irremote sensor
 
 bool isOn = false;  //the var that turns on/off the system
 
@@ -91,21 +91,21 @@ float readSensorData() {
 
 void moveForward(int speed) {
   analogWrite(A_1B, 0);
-  analogWrite(A_1A, speed*rightOffset);
-  analogWrite(B_1B, speed*leftOffset);
+  analogWrite(A_1A, (int)(speed*rightOffset));
+  analogWrite(B_1B, (int)(speed*leftOffset));
   analogWrite(B_1A, 0);
 }
 
 void moveBackward(int speed) {
-  analogWrite(A_1B, speed*rightOffset);
+  analogWrite(A_1B, (int)(speed*rightOffset));
   analogWrite(A_1A, 0);
   analogWrite(B_1B, 0);
-  analogWrite(B_1A, speed*leftOffset);
+  analogWrite(B_1A, (int)(speed*leftOffset));
 }
 
 
 void backLeft(int speed) {
-  analogWrite(A_1B, speed*rightOffset);
+  analogWrite(A_1B, (int)(speed*rightOffset));
   analogWrite(A_1A, 0);
   analogWrite(B_1B, 0);
   analogWrite(B_1A, 0);
@@ -115,7 +115,7 @@ void backRight(int speed) {
   analogWrite(A_1B, 0);
   analogWrite(A_1A, 0);
   analogWrite(B_1B, 0);
-  analogWrite(B_1A, speed*leftOffset);
+  analogWrite(B_1A, (int)(speed*leftOffset));
 }
 
 void stopMove() {
@@ -125,7 +125,7 @@ void stopMove() {
   analogWrite(B_1A, 0);
 }
 
-String decodeKeyValue(long result)  //translates the received Ir remote signal (only the power button is used atm)
+String decodeKeyValue(long result)  //translates the signal from the IR remote into its respective button
 {
   switch(result){
     case 0x16:
@@ -185,14 +185,14 @@ void setup() {
   pinMode(B_1B, OUTPUT);
   pinMode(B_1A, OUTPUT);
 
-  //ultrasonic sensor
+  //ultrasonic
   pinMode(echoPin, INPUT);
   pinMode(trigPin, OUTPUT);
 
-  //IR obstacle sensor
+  //IR obstacle
   pinMode(leftIR, INPUT);
   pinMode(rightIR, INPUT);
-  //IRRemote receiver
+
   IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
 
 }
@@ -201,7 +201,6 @@ void loop() {
 
   int left = digitalRead(leftIR);  // 0: Obstructed   1: Empty
   int right = digitalRead(rightIR);
-  float distance = readSensorData();
   if (isOn) {
 
     if (!left && right) {
@@ -251,8 +250,11 @@ Don't forget to place the link of where to buy each component inside the quotati
 | **Part** | **Note** | **Price** | **Link** |
 |:--:|:--:|:--:|:--:|
 | 3 in 1 kit | The base project + IRremote modification | $69.99 | <a href="https://www.sunfounder.com/products/sunfounder-3-in-1-iot-smart-car-learning-ultimate-starter-kit"> Link </a> |
-| Item Name | What the item is used for | $Price | <a href="https://www.amazon.com/Arduino-A000066-ARDUINO-UNO-R3/dp/B008GRTSV6/"> Link </a> |
-| Item Name | What the item is used for | $Price | <a href="https://www.amazon.com/Arduino-A000066-ARDUINO-UNO-R3/dp/B008GRTSV6/"> Link </a> |
+| screw terminal DC barrel adapter | What the item is used for | $3.97 | <a href="https://www.amazon.com/dp/B0CR8TZ41W"> Link </a> |
+| 5W 12V Solar Panel | Used to power the car | $13.99 | <a href="https://www.amazon.com/Efficiency-Chargerfor-Monocrystalline-Photovoltaic-Batteries/dp/B0F8Q3FTLT"> Link </a> |
+| M3x50mm Standoff x8 | Used to elevate the solarpanel above the robot | $9.86 | <a href="https://www.mouser.com/ProductDetail/Davies-Molding/SH1000-K?qs=vLWxofP3U2ymAINUbdVfLQ%3D%3D"> Link </a> |
+| M3 Nuts x2 | Used to attach the standoffs to the base project | $0.36 | <a href="https://www.mouser.com/ProductDetail/Essentra/04M030050HNDIN34814?qs=T3oQrply3y%252BoX1ymaXFOZA%3D%3D"> Link </a> |
+| J-B Weld | Used to weld together the solar panel and the standoffs | $13.61 | <a href="https://www.amazon.com/J-B-Weld-KwikWeld-Waterproof-50176-2/dp/B009EU5ZMA"> Link </a> |
 
 # Other Resources/Examples
 One of the best parts about Github is that you can view how other people set up their own work. Here are some past BSE portfolios that are awesome examples. You can view how they set up their portfolio, and you can view their index.md files to understand how they implemented different portfolio components.
