@@ -1,5 +1,5 @@
 # Self-Driving Car
-My project is a self-driving car. When it is powered on, it begins its trek, slowly moving forward until it reaches an obstacle, either veering off or reversing to avoid a collision. The base project is from the Sunfounder 3-in-1 kit mentioned in the bill of materials; it runs on an Arduino R3 Uno board, which runs on C++ and uses a 9V battery as its power source. I have modified the project to include both an IR remote to turn on/off it from a distance, and a solar panel so that it runs on solar power rather than batteries.
+My project is a self-driving car. When it is powered on, it begins its trek, slowly moving forward until it reaches an obstacle, either veering off or reversing to avoid a collision. The base project is from the Sunfounder 3-in-1 kit mentioned in the bill of materials; it runs on an Arduino R3 Uno board, which runs on C++ and uses a 9V battery as its power source. I have modified the project to include both an IR remote to turn on/off it from a distance, and a solar panel so that it runs on solar power rather than batteries. The biggest challenge I had was probably coding the obstacle avoidance, which was because of how it would easily get stuck; this caused me to think hard to figure out solutions for complex problems.
 
 <!--Replace this text with a brief description (2-3 sentences) of your project. This description should draw the reader in and make them interested in what you've built. You can include what the biggest challenges, takeaways, and triumphs from completing the project were. As you complete your portfolio, remember your audience is less familiar than you are with all that your project entails!-->
 <!--The biggest challenge I had was the wiring; this project had a decently compact wiring setup, which had some columns full of wires.-->
@@ -76,6 +76,27 @@ const int leftIR = 8;
 
 const int IR_RECEIVE_PIN = 12;  //the pinhole for the irremote sensor
 
+const float speedfactor = 0.75; //used to reduce the speed (mainly for power consumption)
+
+int brtimes = 0;  //used to prevent the robot from being in a "stuck position" when it constantly moves itself out and back into the bad area
+int bltimes = 0;
+
+unsigned long lastBrAccess = 0; // Track last access time for brtimes
+unsigned long lastBlAccess = 0; // Track last access time for bltimes
+
+// --- Distance buffer and stuck detection variables ---
+const int maxReadings = 100;
+float distanceReadings[maxReadings];
+int readingIndex = 0;
+bool bufferFilled = false;
+const float distanceTolerance = 1.0; // cm tolerance for mean stability
+
+float previousMean = 0;
+int stableMeanCount = 0;
+const int stableMeanThreshold = 5;  // consecutive stable means before stuck action
+
+float runningSum = 0;  // for efficient mean calculation
+
 bool isOn = false;  //the var that turns on/off the system
 
 float readSensorData() {
@@ -87,7 +108,6 @@ float readSensorData() {
   float distance = pulseIn(echoPin, HIGH) / 58.00; //Equivalent to (340m/s*1us)/2
   return distance;
 }
-
 
 void moveForward(int speed) {
   analogWrite(A_1B, 0);
@@ -103,19 +123,42 @@ void moveBackward(int speed) {
   analogWrite(B_1A, (int)(speed*leftOffset));
 }
 
-
 void backLeft(int speed) {
-  analogWrite(A_1B, (int)(speed*rightOffset));
-  analogWrite(A_1A, 0);
-  analogWrite(B_1B, 0);
-  analogWrite(B_1A, 0);
+  unsigned long now = millis();
+  if (now - lastBlAccess > 2300) { // reset after 2.3 seconds of inactivity
+    bltimes = 0;
+  }
+  lastBlAccess = now;
+
+  if (bltimes < 20) {
+    analogWrite(A_1B, (int)(speed*rightOffset));
+    analogWrite(A_1A, 0);
+    analogWrite(B_1B, 0);
+    analogWrite(B_1A, 0);
+    bltimes++;
+  } else {
+    pivotLeft(speed);
+    delay(500);
+  }
 }
 
 void backRight(int speed) {
-  analogWrite(A_1B, 0);
-  analogWrite(A_1A, 0);
-  analogWrite(B_1B, 0);
-  analogWrite(B_1A, (int)(speed*leftOffset));
+  unsigned long now = millis();
+  if (now - lastBrAccess > 2300) { // reset after 2.3 seconds of inactivity
+    brtimes = 0;
+  }
+  lastBrAccess = now;
+
+  if (brtimes < 20) {
+    analogWrite(A_1B, 0);
+    analogWrite(A_1A, 0);
+    analogWrite(B_1B, 0);
+    analogWrite(B_1A, (int)(speed*leftOffset));
+    brtimes++;
+  } else {
+    pivotRight(speed);
+    delay(500);
+  }
 }
 
 void stopMove() {
@@ -125,7 +168,21 @@ void stopMove() {
   analogWrite(B_1A, 0);
 }
 
-String decodeKeyValue(long result)  //translates the signal from the IR remote into its respective button
+void pivotRight(int speed) {
+  analogWrite(A_1B, 0);
+  analogWrite(A_1A, (int)(speed*rightOffset));
+  analogWrite(B_1B, 0);
+  analogWrite(B_1A, (int)(speed*leftOffset));
+}
+
+void pivotLeft(int speed) {
+  analogWrite(A_1B, (int)(speed*rightOffset));
+  analogWrite(A_1A, 0);
+  analogWrite(B_1B, (int)(speed*leftOffset));
+  analogWrite(B_1A, 0);
+}
+
+String decodeKeyValue(long result)  //translates the received signal from the irremote sensor into its respective button
 {
   switch(result){
     case 0x16:
@@ -176,6 +233,65 @@ String decodeKeyValue(long result)  //translates the signal from the IR remote i
       return "ERROR";
     }
 }
+
+// --- Distance buffer and stuck detection functions ---
+
+void addDistanceReading(float newDistance) {
+  runningSum -= distanceReadings[readingIndex];
+  distanceReadings[readingIndex] = newDistance;
+  runningSum += newDistance;
+
+  readingIndex++;
+  if (readingIndex >= maxReadings) {
+    readingIndex = 0;
+    bufferFilled = true;
+  }
+}
+
+float calculateMean() {
+  int count = bufferFilled ? maxReadings : readingIndex;
+  if (count == 0) return 0;
+  return runningSum / count;
+}
+
+void handleDistanceAndStuckDetection(float distance) {
+  // Filter invalid readings
+  if (distance > 2 && distance < 400) {
+    addDistanceReading(distance);
+  } else {
+    stableMeanCount = 0;
+    return;
+  }
+
+  if (!bufferFilled) {
+    previousMean = calculateMean();
+    return;
+  }
+
+  float currentMean = calculateMean();
+
+  if (abs(currentMean - previousMean) <= distanceTolerance) {
+    stableMeanCount++;
+  } else {
+    stableMeanCount = 0;
+  }
+
+  if (stableMeanCount >= stableMeanThreshold) {
+    Serial.println("STUCK DETECTED! Moving backward...");
+    moveBackward(200 * speedfactor);
+    delay(1000);
+    pivotRight(200 * speedfactor);
+    delay(300);
+
+    stableMeanCount = 0;
+    bufferFilled = false;
+    readingIndex = 0;
+    runningSum = 0;
+  }
+
+  previousMean = currentMean;
+}
+
 void setup() {
   Serial.begin(9600);
 
@@ -194,40 +310,52 @@ void setup() {
   pinMode(rightIR, INPUT);
 
   IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
-
 }
 
 void loop() {
 
   int left = digitalRead(leftIR);  // 0: Obstructed   1: Empty
   int right = digitalRead(rightIR);
+
   if (isOn) {
 
     if (!left && right) {
-      backLeft(150);
+      brtimes=0;
+      backLeft(150*speedfactor);
     } else if (left && !right) {
-      backRight(150);
+      bltimes=0;
+      backRight(150*speedfactor);
     } else if (!left && !right) {
-      moveBackward(150);
+      moveBackward(150*speedfactor);
     } else {
       float distance = readSensorData();
       Serial.println(distance);
-      if (distance > 50) { // Safe
-        moveForward(200); //200 is the max rpm that the motor can run at
-      } else if (distance < 10) { // Attention
-        moveBackward(200);
-       delay(1000);
-       backLeft(150);
-       delay(500);
-     } else {
-       moveForward(150);
+
+      // Run stuck detection only if robot is moving forward (both IR sensors clear)
+      bool isMovingForward = (left && right);
+      if (isMovingForward) {
+        handleDistanceAndStuckDetection(distance);
+      } else {
+        stableMeanCount = 0; // reset if not moving forward
       }
-   }
+
+      // Normal obstacle avoidance logic
+      if (distance < 10) { // Attention: object very close
+        moveBackward(200*speedfactor);
+        delay(1000);
+        backLeft(150*speedfactor);
+        delay(500);
+      } else if (distance > 12) {
+        moveForward(constrain(map(distance, 12, 50, 100, 200), 100, 200)*speedfactor);
+      } else {
+        pivotRight(150*speedfactor);
+      }
+    }
   } else {
     stopMove();
   }
+
   if (IrReceiver.decode()) {
-    //    Serial.println(results.value,HEX);
     String key = decodeKeyValue(IrReceiver.decodedIRData.command);
     if (key != "ERROR") {
       Serial.println(key);
@@ -235,11 +363,17 @@ void loop() {
       if (key == "POWER") {
         isOn = !isOn;
         delay(100);
+      } else if (key == "CYCLE") {
+        moveBackward(150);
+        delay(500);
+        pivotLeft(150);
+        delay(250);
       }
     }
     IrReceiver.resume();
   }
 }
+
 ```
 
 
