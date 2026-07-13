@@ -1,5 +1,5 @@
 # Self-Driving Car
-My project is a self-driving car. When it is powered on, it begins its trek, slowly moving forward until it reaches an obstacle, either veering off or reversing to avoid a collision. The base project runs on an Arduino R3 Uno board, which runs on C++ and uses a 9V battery as its power source. I have modified the project to include both an IR remote to turn on/off it from a distance, and a solar panel so that it runs on solar power rather than batteries.
+My project is a self-driving car. When it is powered on, it begins its trek, slowly moving forward until it reaches an obstacle, either veering off or reversing to avoid a collision. The base project is from the Sunfounder 3-in-1 kit mentioned in the bill of materials; it runs on an Arduino R3 Uno board, which runs on C++ and uses a 9V battery as its power source. I have modified the project to include both an IR remote to turn on/off it from a distance, and a solar panel so that it runs on solar power rather than batteries.
 
 <!--Replace this text with a brief description (2-3 sentences) of your project. This description should draw the reader in and make them interested in what you've built. You can include what the biggest challenges, takeaways, and triumphs from completing the project were. As you complete your portfolio, remember your audience is less familiar than you are with all that your project entails!-->
 <!--The biggest challenge I had was the wiring; this project had a decently compact wiring setup, which had some columns full of wires.-->
@@ -43,7 +43,7 @@ My project is a self-driving car. When it is powered on, it begins its trek, slo
 
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/Gh5CL6sdwgA?si=XHWO7IYK0BkYQ-xn" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-For my first milestone my project is in it's base form; it has 1 9V battery to power the entire project, 2 ir sensors for detecting objects, 1 ultrasound sensor for determining distance to nearest object, 1 arduino uno as its computer, 1 l9110 Module for controlling the motors, 2 TT motors to rotate the wheels, 2 TT wheels to apply the rotational power from the motor as translational power, and 1 universal wheel to support the project and keep it balanced. A challenge I'm facing is turning off the robot as when I need to power it off, it constantly tries to continue driving forward.
+For my first milestone my project is in it's base form; it has 1 9V battery to power the entire project, 2 ir sensors for detecting objects, 1 ultrasound sensor for determining distance to nearest object, 1 arduino uno as its computer, 1 l9110 Module for controlling the motors, 2 TT motors to rotate the wheels, 2 TT wheels to apply the rotational power from the motor as translational power, and 1 universal wheel to support the project and keep it balanced. A challenge I faced was that the code would constantly get stuck whenever something was outside its sensors and obstructing it. I fixed this by adjusting the code and using the ultrasonic sensor to check whether the distance ahead remained the same for multiple seconds; if it didn't, it would back up and readjust itself.
 
 <!-- This text is hidden and will not be displayed on the page -->
 <!--For your first milestone, describe what your project is and how you plan to build it. You can include:-->
@@ -256,10 +256,10 @@ Don't forget to place the link of where to buy each component inside the quotati
 | M3 Nuts x2 | Used to attach the standoffs to the base project. | $0.36 | <a href="https://www.mouser.com/ProductDetail/Essentra/04M030050HNDIN34814?qs=T3oQrply3y%252BoX1ymaXFOZA%3D%3D"> Link </a> |
 | J-B Weld | Used to weld together the solar panel and the standoffs. | $13.61 | <a href="https://www.amazon.com/J-B-Weld-KwikWeld-Waterproof-50176-2/dp/B009EU5ZMA"> Link </a> |
 
-# Other Resources/Examples
+<!--# Other Resources/Examples
 One of the best parts about Github is that you can view how other people set up their own work. Here are some past BSE portfolios that are awesome examples. You can view how they set up their portfolio, and you can view their index.md files to understand how they implemented different portfolio components.
 - [Example 1](https://trashytuber.github.io/YimingJiaBlueStamp/)
 - [Example 2](https://sviatil0.github.io/Sviatoslav_BSE/)
 - [Example 3](https://arneshkumar.github.io/arneshbluestamp/)
 
-To watch the BSE tutorial on how to create a portfolio, click here.
+To watch the BSE tutorial on how to create a portfolio, click here.-->
