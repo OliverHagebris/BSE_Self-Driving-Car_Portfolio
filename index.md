@@ -129,7 +129,6 @@ void backLeft(int speed) {
     bltimes = 0;
   }
   lastBlAccess = now;
-
   if (bltimes < 20) {
     analogWrite(A_1B, (int)(speed*rightOffset));
     analogWrite(A_1A, 0);
@@ -148,7 +147,6 @@ void backRight(int speed) {
     brtimes = 0;
   }
   lastBrAccess = now;
-
   if (brtimes < 20) {
     analogWrite(A_1B, 0);
     analogWrite(A_1A, 0);
@@ -185,62 +183,20 @@ void pivotLeft(int speed) {
 String decodeKeyValue(long result)  //translates the received signal from the irremote sensor into its respective button
 {
   switch(result){
-    case 0x16:
-      return "0";
-    case 0xC:
-      return "1"; 
-    case 0x18:
-      return "2"; 
-    case 0x5E:
-      return "3"; 
-    case 0x8:
-      return "4"; 
-    case 0x1C:
-      return "5"; 
-    case 0x5A:
-      return "6"; 
-    case 0x42:
-      return "7"; 
-    case 0x52:
-      return "8"; 
-    case 0x4A:
-      return "9"; 
-    case 0x9:
-      return "+"; 
-    case 0x15:
-      return "-"; 
-    case 0x7:
-      return "EQ"; 
-    case 0xD:
-      return "U/SD";
     case 0x19:
       return "CYCLE";         
-    case 0x44:
-      return "PLAY/PAUSE";   
-    case 0x43:
-      return "FORWARD";   
-    case 0x40:
-      return "BACKWARD";   
     case 0x45:
       return "POWER";   
-    case 0x47:
-      return "MUTE";   
-    case 0x46:
-      return "MODE";       
-    case 0x0:
-      return "ERROR";   
     default :
       return "ERROR";
     }
 }
 
 // --- Distance buffer and stuck detection functions ---
-
 void addDistanceReading(float newDistance) {
   runningSum -= distanceReadings[readingIndex];
   distanceReadings[readingIndex] = newDistance;
   runningSum += newDistance;
-
   readingIndex++;
   if (readingIndex >= maxReadings) {
     readingIndex = 0;
@@ -262,20 +218,16 @@ void handleDistanceAndStuckDetection(float distance) {
     stableMeanCount = 0;
     return;
   }
-
   if (!bufferFilled) {
     previousMean = calculateMean();
     return;
   }
-
   float currentMean = calculateMean();
-
   if (abs(currentMean - previousMean) <= distanceTolerance) {
     stableMeanCount++;
   } else {
     stableMeanCount = 0;
   }
-
   if (stableMeanCount >= stableMeanThreshold) {
     moveBackward(150 * speedfactor);
     delay(1000);
@@ -287,37 +239,29 @@ void handleDistanceAndStuckDetection(float distance) {
     readingIndex = 0;
     runningSum = 0;
   }
-
   previousMean = currentMean;
 }
 
 void setup() {
   Serial.begin(9600);
-
   //motor
   pinMode(A_1B, OUTPUT);
   pinMode(A_1A, OUTPUT);
   pinMode(B_1B, OUTPUT);
   pinMode(B_1A, OUTPUT);
-
   //ultrasonic
   pinMode(echoPin, INPUT);
   pinMode(trigPin, OUTPUT);
-
   //IR obstacle
   pinMode(leftIR, INPUT);
   pinMode(rightIR, INPUT);
-
   IrReceiver.begin(IR_RECEIVE_PIN, ENABLE_LED_FEEDBACK);
 }
 
 void loop() {
-
   int left = digitalRead(leftIR);  // 0: Obstructed   1: Empty
   int right = digitalRead(rightIR);
-
   if (isOn) {
-
     if (!left && right) {
       brtimes=0;
       backLeft(150*speedfactor);
@@ -329,7 +273,6 @@ void loop() {
     } else {
       float distance = readSensorData();
       Serial.println(distance);
-
       // Run stuck detection only if robot is moving forward (both IR sensors clear)
       bool isMovingForward = (left && right);
       if (isMovingForward) {
@@ -337,7 +280,6 @@ void loop() {
       } else {
         stableMeanCount = 0; // reset if not moving forward
       }
-
       // Normal obstacle avoidance logic
       if (distance < 10) { // Attention: object very close
         moveBackward(150*speedfactor);
@@ -353,12 +295,10 @@ void loop() {
   } else {
     stopMove();
   }
-
   if (IrReceiver.decode()) {
     String key = decodeKeyValue(IrReceiver.decodedIRData.command);
     if (key != "ERROR") {
       Serial.println(key);
-
       if (key == "POWER") {
         isOn = !isOn;
         delay(100);
