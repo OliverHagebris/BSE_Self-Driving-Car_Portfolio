@@ -76,7 +76,7 @@ const int leftIR = 8;
 
 const int IR_RECEIVE_PIN = 12;  //the pinhole for the irremote sensor
 
-const float speedfactor = 0.75; //used to reduce the speed (mainly for power consumption)
+const float speedfactor = 0.60; //used to reduce the speed (mainly for power consumption)
 
 int brtimes = 0;  //used to prevent the robot from being in a "stuck position" when it constantly moves itself out and back into the bad area
 int bltimes = 0;
@@ -277,10 +277,9 @@ void handleDistanceAndStuckDetection(float distance) {
   }
 
   if (stableMeanCount >= stableMeanThreshold) {
-    Serial.println("STUCK DETECTED! Moving backward...");
-    moveBackward(200 * speedfactor);
+    moveBackward(150 * speedfactor);
     delay(1000);
-    pivotRight(200 * speedfactor);
+    pivotRight(150 * speedfactor);
     delay(300);
 
     stableMeanCount = 0;
@@ -341,12 +340,12 @@ void loop() {
 
       // Normal obstacle avoidance logic
       if (distance < 10) { // Attention: object very close
-        moveBackward(200*speedfactor);
+        moveBackward(150*speedfactor);
         delay(1000);
         backLeft(150*speedfactor);
         delay(500);
       } else if (distance > 12) {
-        moveForward(constrain(map(distance, 12, 50, 100, 200), 100, 200)*speedfactor);
+        moveForward(constrain(map(distance, 12, 50, 100, 150), 100, 150)*speedfactor);
       } else {
         pivotRight(150*speedfactor);
       }
@@ -364,9 +363,9 @@ void loop() {
         isOn = !isOn;
         delay(100);
       } else if (key == "CYCLE") {
-        moveBackward(150);
+        moveBackward(150*speedfactor);
         delay(500);
-        pivotLeft(150);
+        pivotLeft(150*speedfactor);
         delay(250);
       }
     }
@@ -389,6 +388,7 @@ Don't forget to place the link of where to buy each component inside the quotati
 | M3x50mm Standoff x8 | Used to elevate the solar panel above the robot. | $9.86 | <a href="https://www.mouser.com/ProductDetail/Davies-Molding/SH1000-K?qs=vLWxofP3U2ymAINUbdVfLQ%3D%3D"> Link </a> |
 | M3 Nuts x2 | Used to attach the standoffs to the base project. | $0.36 | <a href="https://www.mouser.com/ProductDetail/Essentra/04M030050HNDIN34814?qs=T3oQrply3y%252BoX1ymaXFOZA%3D%3D"> Link </a> |
 | J-B Weld | Used to weld together the solar panel and the standoffs. | $13.61 | <a href="https://www.amazon.com/J-B-Weld-KwikWeld-Waterproof-50176-2/dp/B009EU5ZMA"> Link </a> |
+| Step Down Converter | Drops the input voltage from 12V-5V | $7.99 | <a href="https://www.amazon.com/dp/B07Y2V1F8V"> Link </a> |
 
 <!--# Other Resources/Examples
 One of the best parts about Github is that you can view how other people set up their own work. Here are some past BSE portfolios that are awesome examples. You can view how they set up their portfolio, and you can view their index.md files to understand how they implemented different portfolio components.
