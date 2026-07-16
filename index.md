@@ -17,7 +17,8 @@ My project is a self-driving car. When it is powered on, it begins its trek, slo
 
 <!--**Don't forget to replace the text below with the embedding for your milestone video. Go to Youtube, click Share -> Embed, and copy and paste the code to replace what's below.**-->
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/F7M7imOVGug" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<iframe width="560" height="315" src="https://youtube.com/embed/mw8LapCJTlQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+Since my last milestone, I have added an IR remote sensor, a solar panel, & a DC-DC step-down converter. At Bluestamps, I have learned  a lot about wiring, coding, and perseverance. I learned about perseverance when I pushed through in my coding, since I had trouble with fixing it so that it would not get stuck in easy situations. This took many attempts and a lot of time to fix. This showed me perseverance because I had to keep trying and trying to get it to work; if I had just stopped in the middle, then I wouldn't have overcome that obstacle, and it would never have been fixed. In the future, outside of bluestamps, I hope to develop my wiring skills further.
 
 <!--For your final milestone, explain the outcome of your project. Key details to include are:
 - What you've accomplished since your previous milestone
@@ -39,7 +40,7 @@ For my first milestone my project is in it's base form; it has 1 9V battery to p
 <!--- Challenges you're facing and solving in your future milestones-->
 <!--- What your plan is to complete your project-->
 
-# Schematics 
+<!--# Schematics -->
 <!--Here's where you'll put images of your schematics. [Tinkercad](https://www.tinkercad.com/blog/official-guide-to-tinkercad-circuits) and [Fritzing](https://fritzing.org/learning/) are both great resoruces to create professional schematic diagrams, though BSE recommends Tinkercad becuase it can be done easily and for free in the browser. -->
 
 # Code
