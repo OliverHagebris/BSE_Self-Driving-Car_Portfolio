@@ -10,9 +10,9 @@ My project is a self-driving car. When it is powered on, it begins its trek, slo
 | Oliver H | Lynbrook Highschool | Electrical Engineering/Mechanical Engineering | Incoming Sophomore
 
 <!--**Replace the BlueStamp logo below with an image of yourself and your completed project. Follow the guide [here](https://tomcam.github.io/least-github-pages/adding-images-github-pages-site.html) if you need help.**-->
-<p align="center">
+
   ![Headstone](/BSE_Self-Driving-Car_Portfolio/Logo.png)
-</p>
+
 
 # Final Milestone
 
